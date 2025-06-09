@@ -1,0 +1,145 @@
+hey, create a native react barber app name barberng wit react native, use the following features document as a guide:# Barberng App - Features Document
+## Overview
+Barberng is a mobile application that connects hair service providers (barbers, stylists, salons) and hair product sellers with customers. The app will be built using Expo React Native with Supabase as the backend and potential AI integrations via Deepseek.
+## Core Features
+### 1. User Management
+- Authentication System
+  - Email/password signup/login
+  - Social media login (Google, Apple)
+  - Phone number verification
+  - Multi-factor authentication for service providers
+- User Profiles
+  - Customer profiles (basic info, hair preferences, favorites)
+  - Service provider profiles (portfolio, certifications, services offered)
+  - Product seller profiles (inventory, business info)
+- User Types & Permissions
+  - Customer
+  - Service provider (individual)
+  - Salon/business owner
+  - Product seller
+  - Admin
+### 2. Service Provider Features
+- Profile Management
+  - Portfolio upload (before/after photos)
+  - Service menu creation (pricing, duration)
+  - Availability calendar
+  - Certification verification
+- Booking Management
+  - Real-time appointment scheduling
+  - Booking notifications
+  - Customer history tracking
+- Business Tools
+  - Revenue analytics
+  - Customer feedback management
+  - Promotional tools
+### 3. Product Marketplace
+- Product Listings
+  - Categorized hair products (shampoos, conditioners, styling products)
+  - Product details (ingredients, usage instructions)
+  - Seller ratings and reviews
+- Shopping Features
+  - Cart system
+  - Wishlists
+  - Order tracking
+- Seller Dashboard
+  - Inventory management
+  - Sales analytics
+  - Order fulfillment tracking
+### 4. Booking System
+- Discovery
+  - Location-based provider search
+  - Filter by service type, rating, price
+  - Salon/stylist profiles with reviews
+- Scheduling
+  - Real-time availability
+  - Service customization
+  - Multiple booking options (in-salon, home service)
+- Payment Integration
+  - Secure in-app payments
+  - Multiple payment methods
+  - Deposit system for premium services
+### 5. AI Integration (via Deepseek)
+- Virtual Hair Consultant
+  - Hair type analysis via photo upload
+  - Personalized product recommendations
+  - Style suggestions based on face shape
+- Augmented Reality
+  - Virtual try-on for hairstyles
+  - Color simulation
+- Smart Scheduling
+  - AI-powered appointment suggestions
+  - Predictive booking for busy periods
+### 6. Community & Engagement
+- Social Features
+  - Before/after photo sharing
+  - Style inspiration feed
+  - User reviews and ratings
+- Loyalty Programs
+  - Points system
+  - Referral rewards
+  - VIP memberships
+- Notifications
+  - Appointment reminders
+  - Promotional offers
+  - Community updates
+### 7. Admin & Moderation
+- Dashboard
+  - User management
+  - Content moderation
+  - Analytics and reporting
+- Verification System
+  - Service provider verification
+  - Product authenticity checks
+- Support System
+  - Ticketing system
+  - Dispute resolution
+## Comprehensive Documentation Needed
+1. Technical Specifications
+   - Expo React Native version and dependencies
+   - Supabase configuration details
+   - Deepseek API documentation
+2. Database Schema
+   - Complete ER diagram
+   - Table structures for:
+     - Users (all types)
+     - Services
+     - Products
+     - Appointments
+     - Transactions
+     - Reviews
+     - Notifications
+3. API Documentation
+   - All Supabase endpoints
+   - Request/response formats
+   - Authentication flows
+   - Rate limiting details
+4. UI/UX Assets
+   - Figma/Sketch design files
+   - Style guide (colors, typography)
+   - Component library
+   - Animation specifications
+5. Third-party Service Docs
+   - Payment gateway integration
+   - Map services (Google Maps/Mapbox)
+   - Social media APIs
+   - SMS/email service providers
+7. Testing Documentation
+   - Test cases for all features
+   - User acceptance criteria
+   - Performance benchmarks
+   - Security testing protocols
+8. Deployment Guide
+   - Expo build configurations
+- App store submission checklists
+   - Environment variables management
+   - CI/CD pipeline setup
+9. Legal & Compliance
+   - Privacy policy template
+   - Terms of service
+   - Data protection requirements (GDPR, CCPA)
+   - Payment compliance (PCI DSS)
+10. Maintenance Docs
+    - Error logging system
+    - Monitoring tools
+    - Update procedures
+    - Backup and recovery plans
