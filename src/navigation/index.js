@@ -3,6 +3,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useAuth } from '../contexts/AuthContext';
+import { Ionicons } from '@expo/vector-icons';
+import { View, Text, StyleSheet } from 'react-native';
+import { HapticTab } from '../components/HapticTab';
 
 // Auth Screens
 import LoginScreen from '../screens/auth/LoginScreen';
@@ -38,9 +41,92 @@ import SettingsScreen from '../screens/common/SettingsScreen';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
+// Tab bar icon function
+const getTabBarIcon = (routeName, focused) => {
+  let iconName;
+  
+  switch (routeName) {
+    case 'Home':
+      iconName = focused ? 'home' : 'home-outline';
+      break;
+    case 'Bookings':
+      iconName = focused ? 'calendar' : 'calendar-outline';
+      break;
+    case 'Shop':
+      iconName = focused ? 'cart' : 'cart-outline';
+      break;
+    case 'Profile':
+      iconName = focused ? 'person' : 'person-outline';
+      break;
+    case 'Services':
+      iconName = focused ? 'cut' : 'cut-outline';
+      break;
+    case 'Products':
+      iconName = focused ? 'pricetag' : 'pricetag-outline';
+      break;
+    case 'Orders':
+      iconName = focused ? 'list' : 'list-outline';
+      break;
+    case 'Dashboard':
+      iconName = focused ? 'stats-chart' : 'stats-chart-outline';
+      break;
+    case 'Users':
+      iconName = focused ? 'people' : 'people-outline';
+      break;
+    default:
+      iconName = 'help-circle-outline';
+  }
+  
+  return <Ionicons name={iconName} size={24} color={focused ? '#000' : '#666'} />;
+};
+
+// Common tab navigator options
+const tabNavigatorOptions = {
+  headerShown: false,
+  tabBarStyle: {
+    elevation: 0,
+    shadowOpacity: 0,
+    height: 60,
+    paddingBottom: 10,
+    paddingTop: 10,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+  },
+  tabBarButton: (props) => <HapticTab {...props} />,
+  tabBarActiveTintColor: '#000',
+  tabBarInactiveTintColor: '#666',
+  tabBarLabelStyle: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+};
+
+// Stack navigator screen options with animations
+const stackScreenOptions = {
+  headerShown: false,
+  animation: 'slide_from_right',
+  gestureEnabled: true,
+  gestureDirection: 'horizontal',
+  cardStyleInterpolator: ({ current, layouts }) => {
+    return {
+      cardStyle: {
+        transform: [
+          {
+            translateX: current.progress.interpolate({
+              inputRange: [0, 1],
+              outputRange: [layouts.screen.width, 0],
+            }),
+          },
+        ],
+      },
+    };
+  },
+};
+
 // Auth Navigator
 const AuthNavigator = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
+  <Stack.Navigator screenOptions={stackScreenOptions}>
     <Stack.Screen name="Login" component={LoginScreen} />
     <Stack.Screen name="Register" component={RegisterScreen} />
     <Stack.Screen name="PhoneVerification" component={PhoneVerificationScreen} />
@@ -49,7 +135,10 @@ const AuthNavigator = () => (
 
 // Customer Tab Navigator
 const CustomerTabNavigator = () => (
-  <Tab.Navigator>
+  <Tab.Navigator screenOptions={({ route }) => ({
+    ...tabNavigatorOptions,
+    tabBarIcon: ({ focused }) => getTabBarIcon(route.name, focused),
+  })}>
     <Tab.Screen name="Home" component={CustomerHomeScreen} />
     <Tab.Screen name="Bookings" component={CustomerBookingsScreen} />
     <Tab.Screen name="Shop" component={CustomerShopScreen} />
@@ -59,7 +148,10 @@ const CustomerTabNavigator = () => (
 
 // Provider Tab Navigator
 const ProviderTabNavigator = () => (
-  <Tab.Navigator>
+  <Tab.Navigator screenOptions={({ route }) => ({
+    ...tabNavigatorOptions,
+    tabBarIcon: ({ focused }) => getTabBarIcon(route.name, focused),
+  })}>
     <Tab.Screen name="Home" component={ProviderHomeScreen} />
     <Tab.Screen name="Bookings" component={ProviderBookingsScreen} />
     <Tab.Screen name="Services" component={ProviderServicesScreen} />
@@ -69,7 +161,10 @@ const ProviderTabNavigator = () => (
 
 // Seller Tab Navigator
 const SellerTabNavigator = () => (
-  <Tab.Navigator>
+  <Tab.Navigator screenOptions={({ route }) => ({
+    ...tabNavigatorOptions,
+    tabBarIcon: ({ focused }) => getTabBarIcon(route.name, focused),
+  })}>
     <Tab.Screen name="Home" component={SellerHomeScreen} />
     <Tab.Screen name="Products" component={SellerProductsScreen} />
     <Tab.Screen name="Orders" component={SellerOrdersScreen} />
@@ -79,7 +174,10 @@ const SellerTabNavigator = () => (
 
 // Admin Tab Navigator
 const AdminTabNavigator = () => (
-  <Tab.Navigator>
+  <Tab.Navigator screenOptions={({ route }) => ({
+    ...tabNavigatorOptions,
+    tabBarIcon: ({ focused }) => getTabBarIcon(route.name, focused),
+  })}>
     <Tab.Screen name="Dashboard" component={AdminDashboardScreen} />
     <Tab.Screen name="Users" component={AdminUsersScreen} />
     <Tab.Screen name="Profile" component={ProviderProfileScreen} />
@@ -93,11 +191,15 @@ const RootNavigator = () => {
 
   if (loading) {
     // Return a loading screen
-    return null;
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Loading...</Text>
+      </View>
+    );
   }
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator screenOptions={stackScreenOptions}>
       {!user ? (
         <Stack.Screen name="Auth" component={AuthNavigator} />
       ) : (
@@ -129,5 +231,14 @@ const AppNavigator = () => {
     </NavigationContainer>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF'
+  },
+});
 
 export default AppNavigator;
