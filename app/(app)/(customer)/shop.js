@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router, Link } from 'expo-router';
 
-const ShopScreen = ({ navigation }) => {
+const ShopScreen = () => { // Removed navigation prop
   const [searchQuery, setSearchQuery] = useState('');
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -78,25 +79,33 @@ const ShopScreen = ({ navigation }) => {
   );
 
   const renderProductItem = ({ item }) => (
-    <TouchableOpacity 
-      style={styles.productCard}
-      onPress={() => navigation.navigate('ProductDetails', { product: item })}
+    <Link 
+      href={{
+        pathname: "/(app)/(customer)/product-details",
+        params: { product: JSON.stringify(item) }
+      }} 
+      asChild
     >
-      <Image source={{ uri: item.image }} style={styles.productImage} />
-      <View style={styles.productInfo}>
-        <Text style={styles.productName}>{item.name}</Text>
-        <Text style={styles.productPrice}>{item.price}</Text>
-        <View style={styles.ratingContainer}>
-          <Text style={styles.ratingText}>★ {item.rating}</Text>
+      <TouchableOpacity style={styles.productCard}>
+        <Image source={{ uri: item.image }} style={styles.productImage} />
+        <View style={styles.productInfo}>
+          <Text style={styles.productName}>{item.name}</Text>
+          <Text style={styles.productPrice}>{item.price}</Text>
+          <View style={styles.ratingContainer}>
+            <Text style={styles.ratingText}>★ {item.rating}</Text>
+          </View>
         </View>
-      </View>
-      <TouchableOpacity 
-        style={styles.addToCartButton}
-        onPress={() => alert('Added to cart!')}
-      >
-        <Text style={styles.addToCartText}>+</Text>
+        <TouchableOpacity 
+          style={styles.addToCartButton}
+          onPress={(e) => {
+            e.stopPropagation(); // Prevent navigation
+            alert('Added to cart!');
+          }}
+        >
+          <Text style={styles.addToCartText}>+</Text>
+        </TouchableOpacity>
       </TouchableOpacity>
-    </TouchableOpacity>
+    </Link>
   );
 
   return (

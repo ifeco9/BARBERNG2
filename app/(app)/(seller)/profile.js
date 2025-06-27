@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../../src/contexts/AuthContext';
 
 const ProfileScreen = ({ navigation }) => {
   const { user, signOut } = useAuth();

@@ -1,9 +1,13 @@
+import { Link } from 'expo-router';
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
-import { useAuth } from '../../contexts/AuthContext';
+import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '../../src/contexts/AuthContext';
 
-const LoginScreen = ({ navigation }) => {
+// Change:
+// const LoginScreen = ({ navigation }) => {
+// to:
+const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -92,9 +96,11 @@ const LoginScreen = ({ navigation }) => {
 
         <View style={styles.registerContainer}>
           <Text style={styles.registerText}>Don't have an account? </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-            <Text style={styles.registerLink}>Register</Text>
-          </TouchableOpacity>
+          <Link href="/(auth)/register" asChild>
+            <TouchableOpacity>
+              <Text style={styles.registerLink}>Register</Text>
+            </TouchableOpacity>
+          </Link>
         </View>
       </View>
     </SafeAreaView>

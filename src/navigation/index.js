@@ -5,7 +5,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useAuth } from '../contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text, StyleSheet } from 'react-native';
-import { HapticTab } from '../components/HapticTab';
+// Change this line:
+// import { HapticTab } from '../components/HapticTab';
+
+// To this:
+import { HapticTab } from '../../components/HapticTab';
 
 // Auth Screens
 import LoginScreen from '../screens/auth/LoginScreen';

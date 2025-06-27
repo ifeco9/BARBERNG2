@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, TextInput } from 'react-native';
+import { Link } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../../src/contexts/AuthContext';
 
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = () => {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [nearbyBarbers, setNearbyBarbers] = useState([]);
@@ -82,11 +83,13 @@ const HomeScreen = ({ navigation }) => {
           <Text style={styles.greeting}>Hello,</Text>
           <Text style={styles.userName}>{user?.user_metadata?.first_name || 'Guest'}</Text>
         </View>
-        <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
-          <View style={styles.notificationIcon}>
-            <Text style={styles.notificationText}>🔔</Text>
-          </View>
-        </TouchableOpacity>
+        <Link href="/(app)/(common)/notifications" asChild>
+          <TouchableOpacity>
+            <View style={styles.notificationIcon}>
+              <Text style={styles.notificationText}>🔔</Text>
+            </View>
+          </TouchableOpacity>
+        </Link>
       </View>
 
       <View style={styles.searchContainer}>

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { Link } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../../src/contexts/AuthContext';
 
-const BookingsScreen = ({ navigation }) => {
+const BookingsScreen = () => { // Removed navigation prop
   const { user } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -100,12 +101,12 @@ const BookingsScreen = ({ navigation }) => {
       ) : (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>You don't have any bookings yet</Text>
-          <TouchableOpacity 
-            style={styles.bookButton}
-            onPress={() => navigation.navigate('Home')}
-          >
-            <Text style={styles.bookButtonText}>Find a Barber</Text>
-          </TouchableOpacity>
+          {/* Fixed the Link component usage */}
+          <Link href="/(app)/(customer)/home" asChild>
+            <TouchableOpacity style={styles.bookButton}>
+              <Text style={styles.bookButtonText}>Find a Barber</Text>
+            </TouchableOpacity>
+          </Link>
         </View>
       )}
     </SafeAreaView>

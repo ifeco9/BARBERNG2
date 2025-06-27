@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import { Link } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../../src/contexts/AuthContext';
 
 const HomeScreen = ({ navigation }) => {
   const { user } = useAuth();
@@ -122,9 +123,17 @@ const HomeScreen = ({ navigation }) => {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Recent Orders</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Orders')}>
-              <Text style={styles.seeAllText}>See All</Text>
-            </TouchableOpacity>
+            // Replace all instances of:
+            // navigation.navigate('Orders')
+            // with:
+            // router.navigate('/(app)/(seller)/orders')
+            
+            // Or use Link components for UI elements:
+            <Link href="/(app)/(seller)/orders" asChild>
+              <TouchableOpacity style={styles.button}>
+                <Text style={styles.buttonText}>View All Orders</Text>
+              </TouchableOpacity>
+            </Link>
           </View>
           <FlatList
             data={recentOrders}

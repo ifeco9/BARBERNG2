@@ -1,11 +1,13 @@
+import 'expo-router/entry';
 import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from './src/contexts/AuthContext';
-import AppNavigator from './src/navigation';
+// Removed AppNavigator import
 import { NotificationService } from './src/services/NotificationService';
 import * as SplashScreen from 'expo-splash-screen';
+import { supabase } from './src/api/supabase';
 
 // Prevent the splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -60,7 +62,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <AppNavigator />
+        {/* Removed AppNavigator component - Expo Router handles this now */}
         <StatusBar style="auto" />
       </AuthProvider>
     </SafeAreaProvider>

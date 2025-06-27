@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { formatPhoneForDisplay } from '../../utils/phoneUtils';
+import { router, useLocalSearchParams } from 'expo-router';
 
-const PhoneVerificationScreen = ({ route, navigation }) => {
-  const { phone } = route.params;
+const PhoneVerificationScreen = () => {
+  // Replace route.params with useLocalSearchParams
+  const { phone } = useLocalSearchParams();
+  
   const [code, setCode] = useState('');
   const [timer, setTimer] = useState(60);
   const [loading, setLoading] = useState(false);
@@ -36,7 +39,7 @@ const PhoneVerificationScreen = ({ route, navigation }) => {
         Alert.alert(
           'Success', 
           'Phone number verified successfully!',
-          [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
+          [{ text: 'OK', onPress: () => router.navigate('/(auth)/login') }]
         );
         setLoading(false);
       }, 1500);

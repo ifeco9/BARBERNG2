@@ -1,7 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { Link, router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../../src/contexts/AuthContext';
+
+// Replace:
+// onPress={() => navigation.navigate('Users')}
+// with:
+// onPress={() => router.navigate('/(app)/(admin)/users')}
+
+// Or use Link:
+<Link href="/(app)/(admin)/users" asChild>
+  <TouchableOpacity style={styles.card}>
+    {/* Card content */}
+  </TouchableOpacity>
+</Link>
 
 const DashboardScreen = ({ navigation }) => {
   const { user } = useAuth();
@@ -42,13 +55,12 @@ const DashboardScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.statsGrid}>
-          <TouchableOpacity 
-            style={styles.statCard}
-            onPress={() => navigation.navigate('Users')}
-          >
-            <Text style={styles.statValue}>{stats.totalUsers}</Text>
-            <Text style={styles.statLabel}>Total Users</Text>
-          </TouchableOpacity>
+          <Link href="/(app)/(admin)/users" asChild>
+            <TouchableOpacity style={styles.statCard}>
+              <Text style={styles.statValue}>{stats.totalUsers}</Text>
+              <Text style={styles.statLabel}>Total Users</Text>
+            </TouchableOpacity>
+          </Link>
           
           <View style={styles.statCard}>
             <Text style={styles.statValue}>{stats.totalProviders}</Text>
@@ -144,7 +156,7 @@ const DashboardScreen = ({ navigation }) => {
           <View style={styles.actionButtonsContainer}>
             <TouchableOpacity 
               style={styles.actionButton}
-              onPress={() => navigation.navigate('Users')}
+              onPress={() => router.push('/(app)/(admin)/users')}
             >
               <Text style={styles.actionButtonText}>Manage Users</Text>
             </TouchableOpacity>
