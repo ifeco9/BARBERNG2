@@ -9,12 +9,12 @@ import { useAuth } from '../../../src/contexts/AuthContext';
 // with:
 // onPress={() => router.navigate('/(app)/(admin)/users')}
 
-// Or use Link:
-<Link href="/(app)/(admin)/users" asChild>
-  <TouchableOpacity style={styles.card}>
-    {/* Card content */}
-  </TouchableOpacity>
-</Link>
+// Or use Link example:
+// <Link href="/(app)/(admin)/users" asChild>
+//   <TouchableOpacity style={styles.card}>
+//     {/* Card content */}
+//   </TouchableOpacity>
+// </Link>
 
 const DashboardScreen = ({ navigation }) => {
   const { user } = useAuth();
