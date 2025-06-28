@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../src/contexts/AuthContext';
-import { validateNigerianPhoneNumber } from '../../utils/phoneUtils';
+import { validateNigerianPhoneNumber } from '../../src/utils/phoneUtils';
 
 const RegisterScreen = () => {
   // Remove navigation prop

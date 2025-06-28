@@ -34,7 +34,7 @@ const LoginScreen = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.logoContainer}>
         <Image 
-          source={require('../../../assets/images/icon.png')} 
+          source={require('../../assets/images/icon.png')} 
           style={styles.logo} 
           resizeMode="contain"
         />

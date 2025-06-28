@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { formatPhoneForDisplay } from '../../utils/phoneUtils';
+import { formatPhoneForDisplay } from '../../src/utils/phoneUtils';
 import { router, useLocalSearchParams } from 'expo-router';
 
 const PhoneVerificationScreen = () => {
