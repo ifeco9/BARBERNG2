@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
     // Set up auth state listener
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session ? 'session exists' : 'no session');
         if (session) {
           setUser(session.user);
           await SecureStore.setItemAsync('supabase-session', JSON.stringify(session));
@@ -27,7 +28,10 @@ export const AuthProvider = ({ children }) => {
     );
 
     return () => {
-      if (authListener) authListener.unsubscribe();
+      // Fix: Check if authListener and authListener.subscription exist before calling unsubscribe
+      if (authListener && authListener.subscription) {
+        authListener.subscription.unsubscribe();
+      }
     };
   }, []);
 
@@ -82,37 +86,83 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Social login (Google)
+  // Add social login methods
   const signInWithGoogle = async () => {
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
+        options: {
+          redirectTo: 'com.barberng://login-callback/'
+        }
       });
       
       if (error) throw error;
       return data;
     } catch (error) {
+      console.error('Google sign in error:', error);
       throw error;
     }
   };
-
-  // Social login (Apple)
+  
   const signInWithApple = async () => {
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'apple',
+        options: {
+          redirectTo: 'com.barberng://login-callback/'
+        }
       });
       
       if (error) throw error;
       return data;
     } catch (error) {
+      console.error('Apple sign in error:', error);
       throw error;
     }
   };
 
   // Phone verification
   const verifyPhone = async (phone, code) => {
-    // Implementation will depend on the SMS verification service used
-    // This is a placeholder for the actual implementation
+    try {
+      // Validate the verification code with your backend/Supabase
+      const { data, error } = await supabase.auth.verifyOtp({
+        phone,
+        token: code,
+        type: 'sms'
+      });
+      
+      if (error) throw error;
+      
+      // Update user metadata to mark phone as verified
+      await supabase.auth.updateUser({
+        data: { phone_verified: true }
+      });
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Phone verification error:', error);
+      throw error;
+    }
+  };
+
+  // Update user profile
+  const updateUserProfile = async (userData) => {
+    try {
+      // Update user metadata
+      const { data, error } = await supabase.auth.updateUser({
+        data: userData
+      });
+      
+      if (error) throw error;
+      
+      // Update local user state
+      setUser(data.user);
+      
+      return { success: true, user: data.user };
+    } catch (error) {
+      console.error('Profile update error:', error);
+      throw error;
+    }
   };
 
   // Sign out
@@ -121,26 +171,56 @@ export const AuthProvider = ({ children }) => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
     } catch (error) {
+      console.error('Sign out error:', error);
       throw error;
     }
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        signUp,
-        signIn,
-        signInWithGoogle,
-        signInWithApple,
-        verifyPhone,
-        signOut,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  // Reset password
+  const resetPassword = async (email) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: 'barberng://reset-password',
+      });
+      
+      if (error) throw error;
+      return { success: true };
+    } catch (error) {
+      console.error('Reset password error:', error);
+      throw error;
+    }
+  };
+
+  // Update password
+  const updatePassword = async (newPassword) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+      
+      if (error) throw error;
+      return { success: true };
+    } catch (error) {
+      console.error('Update password error:', error);
+      throw error;
+    }
+  };
+
+  const value = {
+    user,
+    loading,
+    signUp,
+    signIn,
+    signInWithGoogle,
+    signInWithApple,
+    signOut,
+    resetPassword,
+    updatePassword,
+    verifyPhone,
+    updateUserProfile,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

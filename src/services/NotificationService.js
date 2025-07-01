@@ -1,66 +1,46 @@
 import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
-import { Platform } from 'react-native';
-import { supabase } from '../api/supabase';
+import Constants from 'expo-constants';
+import { Platform, Alert } from 'react-native';
 
 export class NotificationService {
-  // Register for push notifications
-  static async registerForPushNotifications(userId) {
-    if (!Device.isDevice) {
-      console.log('Physical device is required for Push Notifications');
+  static async requestPermissions() {
+    // Check if we're running in Expo Go
+    const isExpoGo = Constants.appOwnership === 'expo';
+    
+    if (isExpoGo) {
+      console.log('Push notifications are disabled in Expo Go. Use a development build for full functionality.');
+      return false;
+    }
+    
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    
+    if (finalStatus !== 'granted') {
+      Alert.alert(
+        'Notification Permission',
+        'To receive booking updates and reminders, please enable notifications for this app in your device settings.',
+        [{ text: 'OK' }]
+      );
+      return false;
+    }
+    
+    return finalStatus === 'granted';
+  }
+  
+  static configurePushNotifications() {
+    // Check if we're running in Expo Go
+    const isExpoGo = Constants.appOwnership === 'expo';
+    
+    if (isExpoGo) {
+      console.log('Push notifications are disabled in Expo Go. Use a development build for full functionality.');
       return;
     }
-
-    try {
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-
-      if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-
-      if (finalStatus !== 'granted') {
-        console.log('Failed to get push token for push notification!');
-        return;
-      }
-
-      const token = (await Notifications.getExpoPushTokenAsync()).data;
-      
-      // Save the token to the database
-      await this.saveTokenToDatabase(userId, token);
-      
-      // Configure notification handler
-      this.configurePushNotifications();
-      
-      return token;
-    } catch (error) {
-      console.error('Error registering for push notifications:', error);
-    }
-  }
-
-  // Save token to database
-  static async saveTokenToDatabase(userId, token) {
-    try {
-      const { error } = await supabase
-        .from('push_tokens')
-        .upsert([
-          {
-            user_id: userId,
-            token,
-            device_type: Platform.OS,
-            created_at: new Date(),
-          },
-        ]);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error saving push token:', error);
-    }
-  }
-
-  // Configure notification handlers
-  static configurePushNotifications() {
+    
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
         shouldShowAlert: true,
@@ -69,26 +49,30 @@ export class NotificationService {
       }),
     });
   }
-
-  // Send local notification
-  static async sendLocalNotification(title, body, data = {}) {
-    await Notifications.scheduleNotificationAsync({
+  
+  static async scheduleLocalNotification(title, body, data = {}, trigger = null) {
+    // Check if we're running in Expo Go
+    const isExpoGo = Constants.appOwnership === 'expo';
+    
+    if (isExpoGo) {
+      console.log('Push notifications are disabled in Expo Go. Use a development build for full functionality.');
+      return null;
+    }
+    
+    const hasPermission = await this.requestPermissions();
+    
+    if (!hasPermission) {
+      console.log('No notification permission');
+      return null;
+    }
+    
+    return await Notifications.scheduleNotificationAsync({
       content: {
         title,
         body,
         data,
       },
-      trigger: null, // Immediately
+      trigger: trigger || null,
     });
-  }
-
-  // Handle received notification
-  static setNotificationReceivedListener(callback) {
-    return Notifications.addNotificationReceivedListener(callback);
-  }
-
-  // Handle notification response (when user taps)
-  static setNotificationResponseReceivedListener(callback) {
-    return Notifications.addNotificationResponseReceivedListener(callback);
   }
 }

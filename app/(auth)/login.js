@@ -13,18 +13,45 @@ const LoginScreen = () => {
   const [loading, setLoading] = useState(false);
   const { signIn, signInWithGoogle, signInWithApple } = useAuth();
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
-      return;
+  const validateForm = () => {
+    let isValid = true;
+    let errors = {};
+    
+    if (!email) {
+      errors.email = 'Email is required';
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      errors.email = 'Email is invalid';
+      isValid = false;
     }
+    
+    if (!password) {
+      errors.password = 'Password is required';
+      isValid = false;
+    } else if (password.length < 6) {
+      errors.password = 'Password must be at least 6 characters';
+      isValid = false;
+    }
+    
+    setFormErrors(errors);
+    return isValid;
+  };
 
+  // Enhance login function with validation
+  const handleLogin = async () => {
+    if (!validateForm()) return;
+    
+    setLoading(true);
     try {
-      setLoading(true);
-      await signIn(email, password);
-      // Navigation is handled by the AuthContext
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) throw error;
+      
     } catch (error) {
-      Alert.alert('Login Failed', error.message);
+      Alert.alert('Login Error', error.message);
     } finally {
       setLoading(false);
     }
@@ -159,7 +186,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   primaryButton: {
-    backgroundColor: '#333',
+    backgroundColor: '#00a86b', // Changed from #333 to green
   },
   buttonText: {
     color: '#fff',
@@ -192,7 +219,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   registerLink: {
-    color: '#333',
+    color: '#00a86b', // Changed from #333 to green
     fontWeight: 'bold',
   },
 });

@@ -1,61 +1,88 @@
 import { Link } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../../src/contexts/AuthContext';
+import { supabase } from '../../../src/api/supabase';
+import { router } from 'expo-router';
 
 const HomeScreen = () => {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [nearbyBarbers, setNearbyBarbers] = useState([]);
   const [featuredStyles, setFeaturedStyles] = useState([]);
+  const [recentBookings, setRecentBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // In a real app, you would fetch this data from your API
-    // For this prototype, we'll use dummy data
-    setNearbyBarbers([
-      {
-        id: '1',
-        name: 'Classic Cuts Barber Shop',
-        rating: 4.8,
-        distance: '0.8 km',
-        image: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8YmFyYmVyc2hvcHxlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&w=1000&q=80',
-      },
-      {
-        id: '2',
-        name: 'Modern Styles',
-        rating: 4.5,
-        distance: '1.2 km',
-        image: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8YmFyYmVyc2hvcHxlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&w=1000&q=80',
-      },
-      {
-        id: '3',
-        name: 'Premium Cuts',
-        rating: 4.9,
-        distance: '2.5 km',
-        image: 'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8YmFyYmVyc2hvcHxlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&w=1000&q=80',
-      },
-    ]);
+    if (user) {
+      fetchData();
+    }
+  }, [user]);
 
-    setFeaturedStyles([
-      {
-        id: '1',
-        name: 'Fade Haircut',
-        image: 'https://images.unsplash.com/photo-1605497788044-5a32c7078486?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8ZmFkZSUyMGhhaXJjdXR8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80',
-      },
-      {
-        id: '2',
-        name: 'Crew Cut',
-        image: 'https://images.unsplash.com/photo-1583195764036-6dc248ac07d9?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8Y3JldyUyMGN1dHxlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&w=1000&q=80',
-      },
-      {
-        id: '3',
-        name: 'Buzz Cut',
-        image: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8YnV6eiUyMGN1dHxlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&w=1000&q=80',
-      },
-    ]);
-  }, []);
-
+  // Fix the duplicate variable issue first
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch nearby barbers from Supabase
+      const { data: barbersData, error: barbersError } = await supabase
+        .from('provider_profiles')
+        .select('*, profiles(*)')
+        .limit(5);
+      
+      if (barbersError) throw barbersError;
+      
+      // Fetch featured styles (in a real app, this would be a separate table)
+      // For now, we'll use dummy data
+      const dummyStyles = [
+        {
+          id: '1',
+          name: 'Fade Haircut',
+          image: 'https://images.unsplash.com/photo-1605497788044-5a32c7078486?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8ZmFkZSUyMGhhaXJjdXR8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80',
+        },
+        {
+          id: '2',
+          name: 'Crew Cut',
+          image: 'https://images.unsplash.com/photo-1583195764036-6dc248ac07d9?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8Y3JldyUyMGN1dHxlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&w=1000&q=80',
+        },
+        {
+          id: '3',
+          name: 'Buzz Cut',
+          image: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8YnV6eiUyMGN1dHxlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&w=1000&q=80',
+        },
+      ];
+      
+      // Fetch recent bookings
+      const { data: bookingsData, error: bookingsError } = await supabase
+        .from('bookings')
+        .select('*, services(*), provider_profiles(*, profiles(*))') 
+        .eq('customer_id', user.id)
+        .eq('status', 'confirmed')
+        .order('booking_date', { ascending: true })
+        .limit(3);
+      
+      if (bookingsError) throw bookingsError;
+      
+      // Transform barbers data
+      const transformedBarbers = barbersData.map(barber => ({
+        id: barber.id,
+        name: barber.shop_name || `${barber.profiles.first_name}'s Barbershop`,
+        rating: 4.5, // In a real app, calculate this from reviews
+        distance: '1.2 km', // In a real app, calculate this from location
+        image: barber.profiles.profile_image || 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8YmFyYmVyc2hvcHxlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&w=1000&q=80',
+      }));
+      
+      // Set state once for each variable to avoid duplicate renders
+      setNearbyBarbers(transformedBarbers);
+      setFeaturedStyles(dummyStyles);
+      setRecentBookings(bookingsData);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setLoading(false);
+    }
+  };
   const renderBarberItem = ({ item }) => (
     <TouchableOpacity style={styles.barberCard}>
       <Image source={{ uri: item.image }} style={styles.barberImage} />
@@ -303,3 +330,41 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
+
+
+// Add search and filtering functionality
+const handleSearch = async (query) => {
+  setSearchQuery(query);
+  if (!query.trim()) {
+    fetchData(); // Reset to default data
+    return;
+  }
+  
+  setLoading(true);
+  try {
+    // Search for barbers by name or location
+    const { data, error } = await supabase
+      .from('provider_profiles')
+      .select('*, profiles(*)')
+      .or(`shop_name.ilike.%${query}%, profiles.first_name.ilike.%${query}%, profiles.last_name.ilike.%${query}%`)
+      .limit(10);
+    
+    if (error) throw error;
+    
+    // Transform results
+    const transformedBarbers = data.map(barber => ({
+      id: barber.id,
+      name: barber.shop_name || `${barber.profiles.first_name}'s Barbershop`,
+      rating: 4.5, // In a real app, calculate this from reviews
+      distance: '1.2 km', // In a real app, calculate this from location
+      image: barber.profiles.profile_image || 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8YmFyYmVyc2hvcHxlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&w=1000&q=80',
+    }));
+    
+    setNearbyBarbers(transformedBarbers);
+  } catch (error) {
+    console.error('Search error:', error);
+    Alert.alert('Error', 'Failed to search. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};

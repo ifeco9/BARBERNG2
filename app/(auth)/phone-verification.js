@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { formatPhoneForDisplay } from '../../src/utils/phoneUtils';
 import { router, useLocalSearchParams } from 'expo-router';
+import { supabase } from '../../src/api/supabase';
 
 const PhoneVerificationScreen = () => {
   // Replace route.params with useLocalSearchParams
@@ -33,18 +34,32 @@ const PhoneVerificationScreen = () => {
 
     try {
       setLoading(true);
+      
       // In a real app, you would verify the code with your backend or auth provider
-      // For this prototype, we'll just simulate success
-      setTimeout(() => {
+      // For this prototype, we'll update the user's metadata to mark phone as verified
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        const { error } = await supabase.auth.updateUser({
+          data: { 
+            phone_verified: true,
+            phone: phone
+          }
+        });
+        
+        if (error) throw error;
+        
         Alert.alert(
           'Success', 
           'Phone number verified successfully!',
           [{ text: 'OK', onPress: () => router.navigate('/(auth)/login') }]
         );
-        setLoading(false);
-      }, 1500);
+      } else {
+        throw new Error('User not found');
+      }
     } catch (error) {
       Alert.alert('Verification Failed', error.message);
+    } finally {
       setLoading(false);
     }
   };
@@ -54,6 +69,36 @@ const PhoneVerificationScreen = () => {
     setTimer(60);
     setResendDisabled(true);
     Alert.alert('Code Sent', 'A new verification code has been sent to your phone.');
+  };
+
+  // Add resend code functionality
+  const resendVerificationCode = async () => {
+    setResendLoading(true);
+    try {
+      // Call your SMS service API here
+      const { error } = await supabase.functions.invoke('send-verification-sms', {
+        body: { phone: phoneNumber }
+      });
+      
+      if (error) throw error;
+      
+      setResendCooldown(60); // 60 second cooldown
+      const interval = setInterval(() => {
+        setResendCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      
+      Alert.alert('Success', 'Verification code resent!');
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    } finally {
+      setResendLoading(false);
+    }
   };
 
   return (
@@ -98,7 +143,7 @@ const PhoneVerificationScreen = () => {
 
         <TouchableOpacity 
           style={styles.backButton}
-          onPress={() => navigation.goBack()}
+          onPress={() => router.back()}
         >
           <Text style={styles.backButtonText}>Back to Registration</Text>
         </TouchableOpacity>
@@ -148,7 +193,7 @@ const styles = StyleSheet.create({
   button: {
     width: '100%',
     height: 50,
-    backgroundColor: '#333',
+    backgroundColor: '#00a86b', // Changed to green
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
@@ -172,7 +217,7 @@ const styles = StyleSheet.create({
     color: '#999',
   },
   resendLink: {
-    color: '#333',
+    color: '#00a86b', // Changed to green
     fontWeight: 'bold',
   },
   backButton: {

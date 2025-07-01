@@ -2,8 +2,9 @@ import React from 'react';
 import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../../src/contexts/AuthContext';
+import { router } from 'expo-router';
 
-const ProfileScreen = ({ navigation }) => {
+const ProfileScreen = () => { // Remove navigation prop
   const { user, signOut } = useAuth();
   
   const handleSignOut = async () => {
@@ -18,10 +19,10 @@ const ProfileScreen = ({ navigation }) => {
   const menuItems = [
     { icon: '👤', title: 'Edit Profile', onPress: () => Alert.alert('Coming Soon', 'This feature is under development') },
     { icon: '🏪', title: 'Store Settings', onPress: () => Alert.alert('Coming Soon', 'This feature is under development') },
-    { icon: '🔔', title: 'Notifications', onPress: () => navigation.navigate('Notifications') },
+    { icon: '🔔', title: 'Notifications', onPress: () => router.navigate('/(app)/(common)/notifications') },
     { icon: '💳', title: 'Payment Settings', onPress: () => Alert.alert('Coming Soon', 'This feature is under development') },
     { icon: '📊', title: 'Sales Analytics', onPress: () => Alert.alert('Coming Soon', 'This feature is under development') },
-    { icon: '⚙️', title: 'Settings', onPress: () => navigation.navigate('Settings') },
+    { icon: '⚙️', title: 'Settings', onPress: () => router.navigate('/(app)/(common)/settings') },
     { icon: '❓', title: 'Help & Support', onPress: () => Alert.alert('Coming Soon', 'This feature is under development') },
   ];
 

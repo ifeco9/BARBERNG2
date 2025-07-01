@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { validateNigerianPhoneNumber } from '../../src/utils/phoneUtils';
 
 const RegisterScreen = () => {
-  // Remove navigation prop
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -42,7 +42,7 @@ const RegisterScreen = () => {
     try {
       setLoading(true);
       await signUp(email, password, phone, userType);
-      navigation.navigate('PhoneVerification', { phone });
+      router.navigate('/(auth)/phone-verification', { phone });
     } catch (error) {
       Alert.alert('Registration Failed', error.message);
     } finally {
@@ -141,7 +141,7 @@ const RegisterScreen = () => {
           
           <View style={styles.loginContainer}>
             <Text style={styles.loginText}>Already have an account? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+            <TouchableOpacity onPress={() => router.navigate('/(auth)/login')}>
               <Text style={styles.loginLink}>Login</Text>
             </TouchableOpacity>
           </View>

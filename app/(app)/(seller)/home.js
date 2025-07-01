@@ -1,11 +1,12 @@
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../../src/contexts/AuthContext';
 
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = () => {
   const { user } = useAuth();
+  const router = useRouter();
   const [recentOrders, setRecentOrders] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -69,7 +70,7 @@ const HomeScreen = ({ navigation }) => {
   const renderOrderItem = ({ item }) => (
     <TouchableOpacity 
       style={styles.orderCard}
-      onPress={() => navigation.navigate('Orders')}
+      onPress={() => router.push('/(app)/(seller)/orders')}
     >
       <View style={styles.orderHeader}>
         <Text style={styles.orderCustomer}>{item.customerName}</Text>
@@ -147,7 +148,8 @@ const HomeScreen = ({ navigation }) => {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Top Selling Products</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Products')}>
+            // In the return statement, update this line:
+            <TouchableOpacity onPress={() => router.push('/(app)/(seller)/products')}>
               <Text style={styles.seeAllText}>See All</Text>
             </TouchableOpacity>
           </View>

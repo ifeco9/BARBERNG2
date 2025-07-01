@@ -1,81 +1,142 @@
 import { Link } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import { useAuth } from '../../../src/contexts/AuthContext';
+import { supabase } from '../../../src/api/supabase';
 
-const BookingsScreen = () => { // Removed navigation prop
+const BookingsScreen = () => {
   const { user } = useAuth();
   const [bookings, setBookings] = useState([]);
+  const [activeTab, setActiveTab] = useState('upcoming');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // In a real app, you would fetch bookings from your API
-    // For this prototype, we'll use dummy data
-    const dummyBookings = [
-      {
-        id: '1',
-        barberName: 'John Doe',
-        serviceName: 'Haircut',
-        date: '2023-11-15',
-        time: '10:00 AM',
-        status: 'upcoming',
-        price: '₦2,500',
-      },
-      {
-        id: '2',
-        barberName: 'Jane Smith',
-        serviceName: 'Beard Trim',
-        date: '2023-11-20',
-        time: '2:30 PM',
-        status: 'upcoming',
-        price: '₦1,500',
-      },
-      {
-        id: '3',
-        barberName: 'Mike Johnson',
-        serviceName: 'Full Service',
-        date: '2023-10-30',
-        time: '11:00 AM',
-        status: 'completed',
-        price: '₦4,000',
-      },
-    ];
-    
-    setBookings(dummyBookings);
-    setLoading(false);
-  }, []);
+    if (user) {
+      fetchBookings();
+    }
+  }, [user, activeTab]);
+
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch bookings from Supabase
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('*, services(*), provider_profiles(*, profiles(*))')
+        .eq('customer_id', user.id)
+        .eq('status', activeTab === 'upcoming' ? 'confirmed' : 'completed')
+        .order('booking_date', { ascending: activeTab === 'upcoming' });
+      
+      if (error) throw error;
+      
+      setBookings(data || []);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+      Alert.alert('Error', 'Failed to load bookings');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReschedule = (booking) => {
+    router.navigate({
+      pathname: "/(app)/(customer)/booking-form",
+      params: { 
+        barberId: booking.provider_id,
+        barberName: booking.provider_profiles.profiles.first_name + ' ' + booking.provider_profiles.profiles.last_name,
+        serviceId: booking.service_id,
+        serviceName: booking.services.name,
+        price: booking.services.price,
+        duration: booking.services.duration,
+        isReschedule: true,
+        bookingId: booking.id
+      }
+    });
+  };
+
+  const handleCancelBooking = async (bookingId) => {
+    try {
+      Alert.alert(
+        'Cancel Booking',
+        'Are you sure you want to cancel this booking?',
+        [
+          {
+            text: 'No',
+            style: 'cancel',
+          },
+          {
+            text: 'Yes',
+            onPress: async () => {
+              setLoading(true);
+              const { error } = await supabase
+                .from('bookings')
+                .update({ status: 'cancelled' })
+                .eq('id', bookingId);
+              
+              if (error) throw error;
+              
+              Alert.alert('Success', 'Booking cancelled successfully');
+              fetchBookings();
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error('Error cancelling booking:', error);
+      Alert.alert('Error', 'Failed to cancel booking');
+      setLoading(false);
+    }
+  };
 
   const renderBookingItem = ({ item }) => {
-    const isUpcoming = item.status === 'upcoming';
+    const isUpcoming = activeTab === 'upcoming';
+    const bookingDate = new Date(item.booking_date);
+    const formattedDate = bookingDate.toLocaleDateString('en-US', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
     
     return (
       <TouchableOpacity 
         style={[styles.bookingCard, isUpcoming ? styles.upcomingCard : styles.completedCard]}
-        onPress={() => Alert.alert('Booking Details', `Service: ${item.serviceName}\nDate: ${item.date} at ${item.time}\nPrice: ${item.price}`)}
+        onPress={() => Alert.alert('Booking Details', 
+          `Service: ${item.services.name}\n` +
+          `Date: ${formattedDate} at ${item.booking_time}\n` +
+          `Price: ₦${item.services.price}\n` +
+          `Barber: ${item.provider_profiles.profiles.first_name} ${item.provider_profiles.profiles.last_name}\n` +
+          `Shop: ${item.provider_profiles.shop_name}\n` +
+          `Address: ${item.provider_profiles.address}`
+        )}
       >
         <View style={styles.bookingHeader}>
-          <Text style={styles.barberName}>{item.barberName}</Text>
+          <Text style={styles.barberName}>
+            {item.provider_profiles.profiles.first_name} {item.provider_profiles.profiles.last_name}
+          </Text>
           <Text style={[styles.statusBadge, isUpcoming ? styles.upcomingBadge : styles.completedBadge]}>
             {item.status.toUpperCase()}
           </Text>
         </View>
         
-        <Text style={styles.serviceName}>{item.serviceName}</Text>
-        <Text style={styles.dateTime}>{item.date} at {item.time}</Text>
-        <Text style={styles.price}>{item.price}</Text>
+        <Text style={styles.serviceName}>{item.services.name}</Text>
+        <Text style={styles.dateTime}>{formattedDate} at {item.booking_time}</Text>
+        <Text style={styles.price}>₦{item.services.price}</Text>
         
         {isUpcoming && (
           <View style={styles.actionButtons}>
             <TouchableOpacity 
               style={[styles.actionButton, styles.rescheduleButton]}
-              onPress={() => Alert.alert('Coming Soon', 'Reschedule functionality is under development')}
+              onPress={() => handleReschedule(item)}
             >
               <Text style={styles.buttonText}>Reschedule</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.actionButton, styles.cancelButton]}
-              onPress={() => Alert.alert('Coming Soon', 'Cancel functionality is under development')}
+              onPress={() => handleCancelBooking(item.id)}
             >
               <Text style={styles.buttonText}>Cancel</Text>
             </TouchableOpacity>
@@ -89,8 +150,26 @@ const BookingsScreen = () => { // Removed navigation prop
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>My Bookings</Text>
       
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'upcoming' && styles.activeTab]}
+          onPress={() => setActiveTab('upcoming')}
+        >
+          <Text style={[styles.tabText, activeTab === 'upcoming' && styles.activeTabText]}>Upcoming</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'completed' && styles.activeTab]}
+          onPress={() => setActiveTab('completed')}
+        >
+          <Text style={[styles.tabText, activeTab === 'completed' && styles.activeTabText]}>Completed</Text>
+        </TouchableOpacity>
+      </View>
+      
       {loading ? (
-        <Text style={styles.loadingText}>Loading bookings...</Text>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#2196F3" />
+          <Text style={styles.loadingText}>Loading bookings...</Text>
+        </View>
       ) : bookings.length > 0 ? (
         <FlatList
           data={bookings}
@@ -100,8 +179,7 @@ const BookingsScreen = () => { // Removed navigation prop
         />
       ) : (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>You don't have any bookings yet</Text>
-          {/* Fixed the Link component usage */}
+          <Text style={styles.emptyText}>You don't have any {activeTab} bookings</Text>
           <Link href="/(app)/(customer)/home" asChild>
             <TouchableOpacity style={styles.bookButton}>
               <Text style={styles.bookButtonText}>Find a Barber</Text>
@@ -124,6 +202,35 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     color: '#333',
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    marginBottom: 20,
+    borderRadius: 8,
+    backgroundColor: '#e0e0e0',
+    padding: 4,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderRadius: 6,
+  },
+  activeTab: {
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+    elevation: 1,
+  },
+  tabText: {
+    fontWeight: '500',
+    color: '#666',
+  },
+  activeTabText: {
+    color: '#2196F3',
+    fontWeight: 'bold',
   },
   listContainer: {
     paddingBottom: 20,
@@ -233,11 +340,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   loadingText: {
     fontSize: 16,
     color: '#777',
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 12,
   },
 });
 
