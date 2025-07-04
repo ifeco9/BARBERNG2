@@ -5,6 +5,9 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../../../src/contexts/AuthContext';
 import { supabase } from '../../../src/api/supabase';
 
+// Import the ProviderReviews component
+import ProviderReviews from '../../../components/ProviderReviews';
+
 const BarberDetailsScreen = () => {
   const { user } = useAuth();
   const params = useLocalSearchParams();
@@ -163,6 +166,12 @@ const BarberDetailsScreen = () => {
             ))}
           </View>
         </View>
+      </ScrollView>
+      
+      // Add the ProviderReviews component to your render method, inside the ScrollView
+      <ScrollView style={styles.container}>
+        {/* Add the reviews section */}
+        <ProviderReviews providerId={providerId} />
       </ScrollView>
     </SafeAreaView>
   );

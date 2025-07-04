@@ -31,7 +31,7 @@ CREATE TABLE provider_profiles (
   years_experience INTEGER,
   bio TEXT,
   address TEXT,
-  location GEOGRAPHY(POINT),
+  location JSONB, -- Changed from GEOGRAPHY(POINT) to JSONB
   working_hours JSONB,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

@@ -1,4 +1,3 @@
-
 {
   "expo": {
     "name": "BARBERNG",
@@ -47,7 +46,10 @@
               "scheme": "barberng"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -79,7 +81,9 @@
             "deploymentTarget": "15.1"
           }
         }
-      ]
+      ],
+      "expo-font",
+      "expo-web-browser"
     ]
   }
 }

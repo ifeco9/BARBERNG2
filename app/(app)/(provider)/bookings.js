@@ -17,10 +17,11 @@ const BookingsScreen = () => {
   const fetchBookings = async () => {
     try {
       // In a real app, fetch from Supabase
-      // const { data, error } = await supabase
-      //   .from('bookings')
-      //   .select('*, customer_profiles(*)')
-      //   .eq('provider_id', user.id);
+      // Replace commented code with this working query
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('*, services(*), customer_profiles(*, profiles(*))')
+        .eq('provider_id', user.id);
       
       // if (error) throw error;
       

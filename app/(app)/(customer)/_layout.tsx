@@ -1,59 +1,57 @@
-import { Tabs } from 'expo-router';
+import { Drawer } from 'expo-router/drawer';
 import { Ionicons } from '@expo/vector-icons';
-import { HapticTab } from '../../../components/HapticTab';
+import { COLORS } from '../../../src/constants/colors';
 
-const getTabBarIcon = (name, focused) => {
+const getDrawerIcon = (name, focused) => {
   let iconName;
   
   switch (name) {
-    case 'home':
-      iconName = focused ? 'home' : 'home-outline';
+    case 'about':
+      iconName = 'information-circle';
       break;
-    case 'bookings':
-      iconName = focused ? 'calendar' : 'calendar-outline';
+    case 'settings':
+      iconName = 'settings';
       break;
-    case 'shop':
-      iconName = focused ? 'cart' : 'cart-outline';
+    case 'support':
+      iconName = 'help-circle';
       break;
-    case 'profile':
-      iconName = focused ? 'person' : 'person-outline';
+    case 'privacy':
+      iconName = 'lock-closed';
+      break;
+    case 'payment-methods':
+      iconName = 'card';
+      break;
+    case 'notifications':
+      iconName = 'notifications';
       break;
     default:
       iconName = 'help-circle-outline';
   }
   
-  return <Ionicons name={iconName} size={24} color={focused ? '#000' : '#666'} />;
+  return <Ionicons name={iconName + (focused ? '' : '-outline')} size={24} color={focused ? COLORS.primary : '#666'} />;
 };
 
 export default function CustomerLayout() {
   return (
-    <Tabs
+    <Drawer
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarStyle: {
-          elevation: 0,
-          shadowOpacity: 0,
-          height: 60,
-          paddingBottom: 10,
-          paddingTop: 10,
-          backgroundColor: '#FFFFFF',
-          borderTopWidth: 1,
-          borderTopColor: '#F0F0F0',
-        },
-        tabBarButton: (props) => <HapticTab {...props} />,
-        tabBarActiveTintColor: '#000',
-        tabBarInactiveTintColor: '#666',
-        tabBarLabelStyle: {
-          fontSize: 12,
+        drawerActiveTintColor: COLORS.primary,
+        drawerInactiveTintColor: '#666',
+        drawerLabelStyle: {
+          fontSize: 14,
           fontWeight: '500',
         },
-        tabBarIcon: ({ focused }) => getTabBarIcon(route.name, focused),
+        drawerIcon: ({ focused }) => getDrawerIcon(route.name, focused),
       })}
     >
-      <Tabs.Screen name="home" options={{ title: 'Home' }} />
-      <Tabs.Screen name="bookings" options={{ title: 'Bookings' }} />
-      <Tabs.Screen name="shop" options={{ title: 'Shop' }} />
-      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
-    </Tabs>
+      <Drawer.Screen name="(tabs)" options={{ headerShown: false, title: 'Home' }} />
+      <Drawer.Screen name="about" options={{ title: 'About Us' }} />
+      <Drawer.Screen name="settings" options={{ title: 'Settings' }} />
+      <Drawer.Screen name="support" options={{ title: 'Help & Support' }} />
+      <Drawer.Screen name="privacy" options={{ title: 'Privacy & Security' }} />
+      <Drawer.Screen name="payment-methods" options={{ title: 'Payment Methods' }} />
+      <Drawer.Screen name="notifications" options={{ title: 'Notifications' }} />
+    </Drawer>
   );
 }

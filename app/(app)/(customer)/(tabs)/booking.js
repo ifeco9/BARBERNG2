@@ -126,7 +126,7 @@ const BookingsScreen = () => {
         <Text style={styles.dateTime}>{formattedDate} at {item.booking_time}</Text>
         <Text style={styles.price}>₦{item.services.price}</Text>
         
-        {isUpcoming && (
+        {isUpcoming ? (
           <View style={styles.actionButtons}>
             <TouchableOpacity 
               style={[styles.actionButton, styles.rescheduleButton]}
@@ -141,9 +141,31 @@ const BookingsScreen = () => {
               <Text style={styles.buttonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
+        ) : (
+          <View style={styles.actionButtons}>
+            <TouchableOpacity 
+              style={[styles.actionButton, { backgroundColor: COLORS.primary }]}
+              onPress={() => handleAddReview(item)}
+            >
+              <Text style={styles.buttonText}>Leave Review</Text>
+            </TouchableOpacity>
+          </View>
         )}
       </TouchableOpacity>
     );
+  };
+
+  // Add this function to handle navigation to the review screen
+  const handleAddReview = (booking) => {
+    router.navigate({
+      pathname: "/(app)/(customer)/add-review",
+      params: { 
+        bookingId: booking.id,
+        providerId: booking.provider_id,
+        providerName: `${booking.provider_profiles.profiles.first_name} ${booking.provider_profiles.profiles.last_name}`,
+        serviceName: booking.services.name
+      }
+    });
   };
 
   return (

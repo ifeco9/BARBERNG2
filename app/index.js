@@ -12,7 +12,7 @@ export default function Index() {
   
   switch (userType) {
     case 'customer':
-      return <Redirect href="/(app)/(customer)/home" />;
+      return <Redirect href="/(app)/(customer)" />; // Changed from /(app)/(customer)/home
     case 'provider':
       return <Redirect href="/(app)/(provider)/home" />;
     case 'seller':

@@ -16,14 +16,20 @@ export class PaymentService {
             booking_id: booking.id,
             amount: parseFloat(amount),
             status: 'pending',
-            payment_method: 'paystack'
-          }
+            payment_method: 'paystack',
+            customer_email: email,
+          },
         ])
         .select();
       
       if (error) throw error;
       
-      return data[0];
+      return {
+        paymentId: data[0].id,
+        reference: `booking-${booking.id}-${Date.now()}`,
+        amount,
+        email,
+      };
     } catch (error) {
       console.error('Error initiating payment:', error);
       throw error;
@@ -113,42 +119,6 @@ export class PaymentService {
       { cancelable: true }
     );
   }
-}
-import { supabase } from '../api/supabase';
-
-export class PaymentService {
-  static PAYSTACK_PUBLIC_KEY = 'YOUR_PAYSTACK_PUBLIC_KEY';
-  
-  // Initialize payment for a booking
-  static async initiateBookingPayment(booking, amount, email) {
-    try {
-      // Create a payment record in the database
-      const { data, error } = await supabase
-        .from('payments')
-        .insert([
-          {
-            booking_id: booking.id,
-            amount,
-            status: 'pending',
-            payment_method: 'paystack',
-            customer_email: email,
-          },
-        ])
-        .select();
-
-      if (error) throw error;
-      
-      return {
-        paymentId: data[0].id,
-        reference: `booking-${booking.id}-${Date.now()}`,
-        amount,
-        email,
-      };
-    } catch (error) {
-      console.error('Error initiating payment:', error);
-      throw error;
-    }
-  }
 
   // Process successful payment
   static async processSuccessfulPayment(paymentId, transactionRef) {
@@ -204,6 +174,7 @@ export class PaymentService {
     }
   }
 }
+
 // Implement real Paystack integration
 const processPaystackPayment = async (amount, email, reference, metadata) => {
   return new Promise((resolve, reject) => {

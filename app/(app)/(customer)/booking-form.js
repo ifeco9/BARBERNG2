@@ -38,6 +38,7 @@ const BookingFormScreen = () => {
     }
   }, [selectedDate]);
   
+  // Update the fetchAvailableTimes function
   const fetchAvailableTimes = async () => {
     try {
       setLoading(true);
@@ -45,11 +46,22 @@ const BookingFormScreen = () => {
       // Format the selected date for the query
       const formattedDate = selectedDate.toISOString().split('T')[0];
       
-      // Get provider's working hours
+      // Make sure we have valid UUIDs, not just "1" or other invalid values
+      const providerId = params.barberId;
+      // Check if providerId is a valid UUID format
+      const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(providerId);
+      
+      if (!isValidUUID) {
+        console.error('Invalid UUID format for provider ID');
+        setAvailableTimes([]);
+        return;
+      }
+      
+      // Get provider's working hours with valid UUID
       const { data: providerData, error: providerError } = await supabase
         .from('provider_profiles')
         .select('working_hours')
-        .eq('id', params.barberId)
+        .eq('id', providerId)
         .single();
       
       if (providerError) throw providerError;

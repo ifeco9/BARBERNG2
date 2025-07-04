@@ -4,13 +4,11 @@ import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } fro
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../src/contexts/AuthContext';
 
-// Change:
-// const LoginScreen = ({ navigation }) => {
-// to:
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [formErrors, setFormErrors] = useState({}); // Add this line
   const { signIn, signInWithGoogle, signInWithApple } = useAuth();
 
   const validateForm = () => {
@@ -39,18 +37,28 @@ const LoginScreen = () => {
 
   // Enhance login function with validation
   const handleLogin = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      // Show error messages
+      if (formErrors.email) {
+        Alert.alert('Error', formErrors.email);
+        return;
+      }
+      if (formErrors.password) {
+        Alert.alert('Error', formErrors.password);
+        return;
+      }
+      return;
+    }
     
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      // Use the signIn function from useAuth instead of direct supabase call
+      const { error } = await signIn(email, password);
       
       if (error) throw error;
       
     } catch (error) {
+      console.error('Login error:', error.message);
       Alert.alert('Login Error', error.message);
     } finally {
       setLoading(false);

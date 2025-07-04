@@ -23,8 +23,8 @@ export default function App() {
     
     async function prepare() {
       try {
-        // Test Supabase connection
-        const { error } = await supabase.from('your_table').select('count').limit(1);
+        // Test Supabase connection with a table that exists
+        const { error } = await supabase.from('profiles').select('count').limit(1);
         if (error) console.warn('Supabase connection issue:', error);
         
         // Pre-load fonts, make API calls, etc.
