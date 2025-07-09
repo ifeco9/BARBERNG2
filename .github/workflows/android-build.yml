@@ -58,9 +58,8 @@ jobs:
       - name: Generate Android Build
         run: |
           cd android
-          # Explicitly set JAVA_HOME for this step and pass it to Gradle
-          export JAVA_HOME=${{ steps.setup-java.outputs.path }}
-          ./gradlew clean assembleRelease -Dorg.gradle.java.home=$JAVA_HOME --info
+          # Force Gradle to use Java 17 by explicitly setting the JVM
+          ./gradlew clean assembleRelease -Dorg.gradle.java.home=${{ steps.setup-java.outputs.path }} --info
 
       - name: Verify Build Output
         run: |
