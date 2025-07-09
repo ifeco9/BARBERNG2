@@ -58,7 +58,9 @@ jobs:
       - name: Generate Android Build
         run: |
           cd android
-          ./gradlew clean assembleRelease --info
+          # Explicitly set JAVA_HOME for this step and pass it to Gradle
+          export JAVA_HOME=${{ steps.setup-java.outputs.path }}
+          ./gradlew clean assembleRelease -Dorg.gradle.java.home=$JAVA_HOME --info
 
       - name: Verify Build Output
         run: |
