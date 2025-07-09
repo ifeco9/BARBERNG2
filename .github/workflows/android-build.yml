@@ -22,6 +22,13 @@ jobs:
           # Remove the cache configuration to avoid the cache error
           # cache: "gradle"
 
+      # Add this step to verify Java is properly set up
+      - name: Verify Java Setup
+        run: |
+          echo "Java version:"
+          java -version
+          echo "JAVA_HOME: $JAVA_HOME"
+
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v1
 
@@ -47,7 +54,8 @@ jobs:
       - name: Generate Android Build
         run: |
           cd android
-          export JAVA_HOME=$JAVA_HOME_17_X64
+          # Use the Java 17 that was set up by the setup-java action
+          export JAVA_HOME=$JAVA_HOME
           ./gradlew assembleRelease
 
       - name: Upload APK
