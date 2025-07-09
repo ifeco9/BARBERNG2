@@ -39,10 +39,16 @@ jobs:
       - name: Make Gradlew Executable
         run: cd android && chmod +x ./gradlew
 
+      - name: Verify Java Version
+        run: |
+          java -version
+          echo $JAVA_HOME
+
       - name: Generate Android Build
         run: |
           cd android
-          ./gradlew clean assembleRelease
+          export JAVA_HOME=$JAVA_HOME_17_X64
+          ./gradlew assembleRelease
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
