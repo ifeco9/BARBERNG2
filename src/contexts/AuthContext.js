@@ -206,23 +206,43 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const value = {
-    user,
-    loading,
-    signUp,
-    signIn,
-    signInWithGoogle,
-    signInWithApple,
-    signOut,
-    resetPassword,
-    updatePassword,
-    verifyPhone,
-    updateUserProfile,
+  // Add the refreshSession function inside the AuthProvider component
+  const refreshSession = async () => {
+    try {
+      const { data, error } = await supabase.auth.refreshSession();
+      if (error) throw error;
+      setUser(data.user);
+      return data;
+    } catch (error) {
+      console.error('Profile update error:', error);
+      throw error;
+    }
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+  // Return the AuthContext.Provider with all values including refreshSession
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        signUp,
+        signIn,
+        signOut,
+        signInWithGoogle,
+        signInWithApple,
+        resetPassword,
+        updatePassword,
+        verifyPhone,
+        updateUserProfile,
+        refreshSession
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}; // End of AuthProvider
 
+// Keep only one useAuth export at the end of the file
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -230,59 +250,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
-// Add this function to the AuthProvider component
-const refreshSession = async () => {
-  try {
-    const { data, error } = await supabase.auth.refreshSession();
-    if (error) throw error;
-    if (data.session) {
-      setUser(data.session.user);
-      await SecureStore.setItemAsync('supabase-session', JSON.stringify(data.session));
-      return data.session;
-    }
-    return null;
-  } catch (error) {
-    console.error('Error refreshing session:', error);
-    return null;
-  }
-};
-
-// Update the updateUserProfile function
-const updateUserProfile = async (updates) => {
-  try {
-    // First refresh the session to ensure it's valid
-    const session = await refreshSession();
-    if (!session) throw new Error('No active session');
-    
-    const { data, error } = await supabase.auth.updateUser({
-      data: updates
-    });
-    
-    if (error) throw error;
-    setUser(data.user);
-    return data;
-  } catch (error) {
-    console.error('Profile update error:', error);
-    throw error;
-  }
-};
-
-// Make sure to include refreshSession in the context value
-return (
-  <AuthContext.Provider
-    value={{
-      user,
-      loading,
-      signUp,
-      signIn,
-      signOut,
-      signInWithGoogle,
-      updateUserProfile,
-      refreshUser,
-      refreshSession, // Add this new function
-    }}
-  >
-    {children}
-  </AuthContext.Provider>
-);

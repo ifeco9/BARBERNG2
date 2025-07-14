@@ -1,11 +1,5 @@
-// Replace this:
-// import { Href, Link } from 'expo-router';
-
-// With this:
-import { Linking } from 'react-native';
-import { openBrowserAsync } from 'expo-web-browser';
+import { Linking, Platform, TouchableOpacity, Text } from 'react-native';
 import { type ComponentProps } from 'react';
-import { Platform, TouchableOpacity, Text } from 'react-native';
 
 type Props = {
   href: string;
@@ -18,11 +12,7 @@ export function ExternalLink({ href, children, style, ...rest }: Props) {
     <TouchableOpacity
       {...rest}
       onPress={async () => {
-        if (Platform.OS !== 'web') {
-          await openBrowserAsync(href);
-        } else {
-          Linking.openURL(href);
-        }
+        await Linking.openURL(href);
       }}
     >
       <Text style={style}>{children}</Text>
