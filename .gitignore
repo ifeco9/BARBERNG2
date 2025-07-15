@@ -39,3 +39,4 @@ yarn-error.*
 app-example
 BARBERNG_Native/commandlinetools.zip
 BARBERNG_Native/commandlinetools.zip
+BARBERNG_Native/node_modules/
