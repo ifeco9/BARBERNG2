@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Drawer } from 'expo-router/drawer';
 import React, { JSX } from 'react';
 import { COLORS } from '../../../src/constants/colors';

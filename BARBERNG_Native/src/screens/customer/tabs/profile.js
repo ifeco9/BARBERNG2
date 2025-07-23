@@ -3,10 +3,13 @@ import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, Act
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../../../src/contexts/AuthContext';
 import { supabase } from '../../../../src/api/supabase';
-import { router, Link } from 'expo-router';
-import * as ImagePicker from 'expo-image-picker';
+import { useNavigation } from '@react-navigation/native';
+import { launchImageLibrary } from 'react-native-image-picker';
+
+
 
 const ProfileScreen = () => {
+  const navigation = useNavigation();
   const { user, signOut, updateUserProfile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ bookings: 0, reviews: 0, points: 0 });
@@ -92,14 +95,17 @@ const ProfileScreen = () => {
   
   const pickImage = async () => {
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
+      const options = {
+        mediaType: 'photo',
+        includeBase64: false,
+        maxHeight: 800,
+        maxWidth: 800,
         quality: 0.8,
-      });
+      };
       
-      if (!result.canceled && result.assets && result.assets.length > 0) {
+      const result = await launchImageLibrary(options);
+      
+      if (!result.didCancel && result.assets && result.assets.length > 0) {
         uploadProfileImage(result.assets[0].uri);
       }
     } catch (error) {
@@ -215,32 +221,32 @@ const ProfileScreen = () => {
     { 
       icon: '🔔', 
       title: 'Notifications', 
-      onPress: () => router.navigate('/(app)/(common)/notifications')
+      onPress: () => navigation.navigate('Notifications')
     },
     { 
       icon: '💳', 
       title: 'Payment Methods', 
-      onPress: () => router.navigate('/(app)/(customer)/payment-methods')
+      onPress: () => navigation.navigate('PaymentMethods')
     },
     { 
       icon: '⭐', 
       title: 'Favorites', 
-      onPress: () => router.navigate('/(app)/(customer)/favorites')
+      onPress: () => navigation.navigate('Favorites')
     },
     { 
       icon: '🔒', 
       title: 'Privacy & Security', 
-      onPress: () => router.navigate('/(app)/(common)/privacy')
+      onPress: () => navigation.navigate('Privacy')
     },
     { 
       icon: '⚙️', 
       title: 'Settings', 
-      onPress: () => router.navigate('/(app)/(common)/settings')
+      onPress: () => navigation.navigate('Settings')
     },
     { 
       icon: '❓', 
       title: 'Help & Support', 
-      onPress: () => router.navigate('/(app)/(common)/support')
+      onPress: () => navigation.navigate('Support')
     },
   ];
 

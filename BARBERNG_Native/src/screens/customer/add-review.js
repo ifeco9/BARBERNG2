@@ -5,7 +5,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../../../src/contexts/AuthContext';
 import { supabase } from '../../../src/api/supabase';
 import { COLORS } from '../../../src/constants/colors';
-import { AntDesign } from '@expo/vector-icons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 const AddReviewScreen = () => {
   const { user } = useAuth();

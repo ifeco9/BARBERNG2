@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { supabase } from '../../src/api/supabase';
-import { router } from 'expo-router';
+import { supabase } from '../../api/supabase';
+// Replace expo-router with React Navigation
+import { useNavigation } from '@react-navigation/native';
 
 const ResetPasswordScreen = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigation = useNavigation();
 
   const handleResetPassword = async () => {
     if (!email) {
@@ -25,7 +27,7 @@ const ResetPasswordScreen = () => {
       Alert.alert(
         'Password Reset Email Sent',
         'Check your email for a password reset link',
-        [{ text: 'OK', onPress: () => router.back() }]
+        [{ text: 'OK', onPress: () => navigation.goBack() }]
       );
     } catch (error) {
       console.error('Reset password error:', error.message);
@@ -64,7 +66,7 @@ const ResetPasswordScreen = () => {
 
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => navigation.goBack()}
         >
           <Text style={styles.backButtonText}>Back to Login</Text>
         </TouchableOpacity>

@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../../../src/contexts/AuthContext';
 import { supabase } from '../../../../src/api/supabase';
 import { COLORS } from '../../../../src/constants/colors';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const DiscoverScreen = () => {
+  const navigation = useNavigation();
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [barbers, setBarbers] = useState([]);
@@ -83,10 +84,7 @@ const DiscoverScreen = () => {
   const renderBarberItem = ({ item }) => (
     <TouchableOpacity 
       style={styles.barberCard}
-      onPress={() => router.navigate({
-        pathname: "/(app)/(customer)/barber-details",
-        params: { barberId: item.id }
-      })}
+      onPress={() => navigation.navigate('BarberDetails', { barberId: item.id })}
     >
       <Image source={{ uri: item.image }} style={styles.barberImage} />
       <View style={styles.barberInfo}>
@@ -98,13 +96,14 @@ const DiscoverScreen = () => {
         
         <TouchableOpacity 
           style={styles.bookButton} 
-          onPress={() => router.push(`/(app)/(customer)/create-booking?providerId=${provider.id}&providerName=${provider.name}`)}
+          onPress={() => navigation.navigate('CreateBooking', {providerId: item.id, providerName: item.name})}
         >
           <Text style={styles.bookButtonText}>Book Appointment</Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
+  
 
   const renderStyleItem = ({ item }) => (
     <TouchableOpacity style={styles.styleCard}>

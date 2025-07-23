@@ -1,11 +1,12 @@
-import { Link } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+// Remove this line
+// import { Link } from 'expo-router';
+// Keep the rest of the imports
 import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../../../../src/contexts/AuthContext';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '../../../../src/api/supabase';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useAuth } from '../../../../src/contexts/AuthContext';
 
 const BookingsScreen = () => {
   const navigation = useNavigation();
@@ -110,56 +111,49 @@ const BookingsScreen = () => {
     });
     
     return (
-      <TouchableOpacity 
-        style={[styles.bookingCard, isUpcoming ? styles.upcomingCard : styles.completedCard]}
-        onPress={() => Alert.alert('Booking Details', 
-          `Service: ${item.services.name}\n` +
-          `Date: ${formattedDate} at ${item.booking_time}\n` +
-          `Price: ₦${item.services.price}\n` +
-          `Barber: ${item.provider_profiles.profiles.first_name} ${item.provider_profiles.profiles.last_name}\n` +
-          `Shop: ${item.provider_profiles.shop_name}\n` +
-          `Address: ${item.provider_profiles.address}`
-        )}
-      >
-        <View style={styles.bookingHeader}>
-          <Text style={styles.barberName}>
-            {item.provider_profiles.profiles.first_name} {item.provider_profiles.profiles.last_name}
-          </Text>
-          <Text style={[styles.statusBadge, isUpcoming ? styles.upcomingBadge : styles.completedBadge]}>
-            {item.status.toUpperCase()}
-          </Text>
+      <SafeAreaView style={styles.container}>
+        <Text style={styles.title}>My Bookings</Text>
+        
+        <View style={styles.tabContainer}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'upcoming' && styles.activeTab]}
+            onPress={() => setActiveTab('upcoming')}
+          >
+            <Text style={[styles.tabText, activeTab === 'upcoming' && styles.activeTabText]}>Upcoming</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'completed' && styles.activeTab]}
+            onPress={() => setActiveTab('completed')}
+          >
+            <Text style={[styles.tabText, activeTab === 'completed' && styles.activeTabText]}>Completed</Text>
+          </TouchableOpacity>
         </View>
         
-        <Text style={styles.serviceName}>{item.services.name}</Text>
-        <Text style={styles.dateTime}>{formattedDate} at {item.booking_time}</Text>
-        <Text style={styles.price}>₦{item.services.price}</Text>
-        
-        {isUpcoming ? (
-          <View style={styles.actionButtons}>
-            <TouchableOpacity 
-              style={[styles.actionButton, styles.rescheduleButton]}
-              onPress={() => handleReschedule(item)}
-            >
-              <Text style={styles.buttonText}>Reschedule</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.actionButton, styles.cancelButton]}
-              onPress={() => handleCancelBooking(item.id)}
-            >
-              <Text style={styles.buttonText}>Cancel</Text>
-            </TouchableOpacity>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#2196F3" />
+            <Text style={styles.loadingText}>Loading bookings...</Text>
           </View>
+        ) : bookings.length > 0 ? (
+          <FlatList
+            data={bookings}
+            renderItem={renderBookingItem}
+            keyExtractor={item => item.id}
+            contentContainerStyle={styles.listContainer}
+          />
         ) : (
-          <View style={styles.actionButtons}>
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>You don't have any {activeTab} bookings</Text>
+            
             <TouchableOpacity 
-              style={[styles.actionButton, { backgroundColor: COLORS.primary }]}
-              onPress={() => handleAddReview(item)}
+              style={styles.bookButton}
+              onPress={() => navigation.navigate('Home')}
             >
-              <Text style={styles.buttonText}>Leave Review</Text>
+              <Text style={styles.bookButtonText}>Find a Barber</Text>
             </TouchableOpacity>
           </View>
         )}
-      </TouchableOpacity>
+      </SafeAreaView>
     );
   };
 
@@ -197,11 +191,23 @@ const BookingsScreen = () => {
       ) : (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>You don't have any {activeTab} bookings</Text>
+          // Replace the Link component with TouchableOpacity
+          // Change this part in the return statement:
+          /*
           <Link href="/(app)/(customer)/home" asChild>
             <TouchableOpacity style={styles.bookButton}>
               <Text style={styles.bookButtonText}>Find a Barber</Text>
             </TouchableOpacity>
           </Link>
+          */
+          
+          // With this:
+          <TouchableOpacity 
+            style={styles.bookButton}
+            onPress={() => navigation.navigate('Home')}
+          >
+            <Text style={styles.bookButtonText}>Find a Barber</Text>
+          </TouchableOpacity>
         </View>
       )}
     </SafeAreaView>

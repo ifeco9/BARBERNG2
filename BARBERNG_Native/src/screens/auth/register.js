@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
-import { useAuth } from '../../src/contexts/AuthContext';
-import { validateNigerianPhoneNumber } from '../../src/utils/phoneUtils';
+// Replace expo-router with React Navigation
+import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../../../src/contexts/AuthContext';
+import { validateNigerianPhoneNumber } from '../../../src/utils/phoneUtils';
 
 const RegisterScreen = () => {
   const [firstName, setFirstName] = useState('');
@@ -16,7 +17,9 @@ const RegisterScreen = () => {
   const [loading, setLoading] = useState(false);
   
   const { signUp } = useAuth();
-
+  // Already correctly using navigation instead of router
+  const navigation = useNavigation();
+  
   const validateForm = () => {
     if (!firstName || !lastName || !email || !phone || !password || !confirmPassword) {
       Alert.alert('Error', 'Please fill in all fields');
@@ -42,7 +45,11 @@ const RegisterScreen = () => {
     try {
       setLoading(true);
       await signUp(email, password, phone, userType);
-      router.navigate('/(auth)/phone-verification', { phone });
+      // Replace this line
+      // router.navigate('/(auth)/phone-verification', { phone });
+      // With this:
+      // This line is already correctly updated to use navigation.navigate
+      navigation.navigate('PhoneVerification', { phone });
     } catch (error) {
       Alert.alert('Registration Failed', error.message);
     } finally {
@@ -141,7 +148,10 @@ const RegisterScreen = () => {
           
           <View style={styles.loginContainer}>
             <Text style={styles.loginText}>Already have an account? </Text>
-            <TouchableOpacity onPress={() => router.navigate('/(auth)/login')}>
+            <TouchableOpacity 
+              // This line is already correctly updated to use navigation.navigate
+              onPress={() => navigation.navigate('Login')}
+            >
               <Text style={styles.loginLink}>Login</Text>
             </TouchableOpacity>
           </View>

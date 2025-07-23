@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { formatPhoneForDisplay } from '../../src/utils/phoneUtils';
-import { router, useLocalSearchParams } from 'expo-router';
-import { supabase } from '../../src/api/supabase';
+import { formatPhoneForDisplay } from '../../utils/phoneUtils';
+// Replace expo-router with React Navigation
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { supabase } from '../../api/supabase';
 
 const PhoneVerificationScreen = () => {
-  // Replace route.params with useLocalSearchParams
-  const { phone } = useLocalSearchParams();
+  // Replace useLocalSearchParams with useRoute
+  const route = useRoute();
+  const { phone } = route.params || {};
+  const navigation = useNavigation();
   
   const [code, setCode] = useState('');
   const [timer, setTimer] = useState(60);
@@ -52,7 +55,7 @@ const PhoneVerificationScreen = () => {
         Alert.alert(
           'Success', 
           'Phone number verified successfully!',
-          [{ text: 'OK', onPress: () => router.navigate('/(auth)/login') }]
+          [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
         );
       } else {
         throw new Error('User not found');
@@ -143,7 +146,7 @@ const PhoneVerificationScreen = () => {
 
         <TouchableOpacity 
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => navigation.goBack()}
         >
           <Text style={styles.backButtonText}>Back to Registration</Text>
         </TouchableOpacity>

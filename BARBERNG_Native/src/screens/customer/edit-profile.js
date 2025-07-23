@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
-import * as ImagePicker from 'expo-image-picker';
+import { useNavigation } from '@react-navigation/native';
+import { launchImageLibrary } from 'react-native-image-picker';
 import { useAuth } from '../../../src/contexts/AuthContext';
 import { supabase } from '../../../src/api/supabase';
 
 const EditProfileScreen = () => {
+  const navigation = useNavigation();
   const { user, refreshUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -58,21 +59,18 @@ const EditProfileScreen = () => {
   
   const pickImage = async () => {
     try {
-      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      
-      if (!permissionResult.granted) {
-        Alert.alert('Permission Required', 'You need to allow access to your photos to upload a profile picture');
-        return;
-      }
-      
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
+      const options = {
+        mediaType: 'photo',
+        includeBase64: false,
+        maxHeight: 800,
+        maxWidth: 800,
         quality: 0.8,
-      });
+        selectionLimit: 1,
+      };
       
-      if (!result.canceled) {
+      const result = await launchImageLibrary(options);
+      
+      if (!result.didCancel && result.assets && result.assets.length > 0) {
         setProfileData(prev => ({ ...prev, profileImage: result.assets[0].uri }));
         uploadImage(result.assets[0].uri);
       }
@@ -176,7 +174,7 @@ const EditProfileScreen = () => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       Alert.alert('Success', 'Profile updated successfully', [
-        { text: 'OK', onPress: () => router.back() }
+        { text: 'OK', onPress: () => navigation.goBack() }
       ]);
     } catch (error) {
       console.error('Error saving profile:', error);
